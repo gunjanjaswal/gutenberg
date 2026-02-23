@@ -5,6 +5,14 @@
  * `package-lock.json` against `node_modules/.package-lock.json` (npm's hidden
  * lockfile, written on every install to record the actual installed tree).
  *
+ * Layout-agnostic: works with both the hoisted (default) and the linked
+ * (`install-strategy=linked`) layouts. Under the linked layout npm stores
+ * packages at `node_modules/.store/<name>@<version>-<hash>/node_modules/<name>`
+ * and symlinks them into place, so lockfile paths no longer line up 1:1 and the
+ * hidden lockfile records no `integrity` fields. We therefore match installed
+ * packages by `name@version` (derived from the path leaf, or the lockfile
+ * `name` field for npm aliases) and compare their `resolved` source.
+ *
  * Exits non-zero with a hint to run `npm install` if the trees diverge.
  */
 
@@ -85,6 +93,40 @@ if ( needsCheck ) {
 	const lockPkgs = lock.packages || {};
 	const hiddenPkgs = hidden.packages || {};
 
+	/*
+	 * The package name is the path segment after the final `node_modules/`.
+	 * This keeps the scope (`@scope/name`) and works for both the hoisted
+	 * layout (`node_modules/<name>`) and the linked `.store` layout
+	 * (`node_modules/.store/<name>@<ver>-<hash>/node_modules/<name>`).
+	 */
+	const NM = 'node_modules/';
+	const packageName = ( pkgPath ) => {
+		const i = pkgPath.lastIndexOf( NM );
+		return i === -1 ? pkgPath : pkgPath.slice( i + NM.length );
+	};
+
+	/*
+	 * Build the set of actually-installed packages, keyed by `name@version`
+	 * mapping to the set of `resolved` sources seen for it. Skip symlinks
+	 * (`link: true`, no `version`) — only real, downloaded packages count.
+	 * Under the linked layout the same `name@version` can appear under
+	 * several `.store` hashes (peer-dependency variants); they share a
+	 * `resolved`, so the set collapses to one entry.
+	 */
+	const installedByKey = new Map();
+	for ( const [ pkgPath, info ] of Object.entries( hiddenPkgs ) ) {
+		if ( info.link || ! info.version ) {
+			continue;
+		}
+		const key = `${ packageName( pkgPath ) }@${ info.version }`;
+		let resolvedSet = installedByKey.get( key );
+		if ( ! resolvedSet ) {
+			resolvedSet = new Set();
+			installedByKey.set( key, resolvedSet );
+		}
+		resolvedSet.add( info.resolved );
+	}
+
 	const reportedMismatches = [];
 	const MAX_REPORTED = 5;
 	let totalMismatches = 0;
@@ -100,22 +142,30 @@ if ( needsCheck ) {
 			continue;
 		}
 
-		const installed = hiddenPkgs[ pkgPath ];
+		/*
+		 * Optional deps may be skipped by npm on the current platform (e.g.
+		 * macOS-only fsevents on Linux) and extraneous deps aren't part of
+		 * the resolved tree, so neither is expected to be installed.
+		 */
+		if ( info.optional || info.extraneous ) {
+			continue;
+		}
+
+		/*
+		 * `info.name` is set when the install path differs from the real
+		 * package name (npm aliases, e.g. `react-is-18` → `react-is`, or
+		 * `prettier` → `wp-prettier`); fall back to the path leaf otherwise.
+		 */
+		const key = `${ info.name || packageName( pkgPath ) }@${
+			info.version
+		}`;
+		const resolvedSet = installedByKey.get( key );
 
 		let mismatch;
-		if ( ! installed ) {
-			/*
-			 * Optional deps may be skipped by npm on the current platform
-			 * (e.g. macOS-only fsevents on Linux). Don't flag them as
-			 * missing. Real drift on an optional dep would still be caught
-			 * below as an integrity mismatch.
-			 */
-			if ( info.optional ) {
-				continue;
-			}
+		if ( ! resolvedSet ) {
 			mismatch = `missing: ${ pkgPath }`;
-		} else if ( installed.integrity !== info.integrity ) {
-			mismatch = `integrity mismatch: ${ pkgPath }`;
+		} else if ( info.resolved && ! resolvedSet.has( info.resolved ) ) {
+			mismatch = `source mismatch: ${ pkgPath }`;
 		}
 
 		if ( ! mismatch ) {

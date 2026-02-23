@@ -19,7 +19,7 @@ import {
 	type RampResult,
 } from './color-ramps';
 import { getColorString } from './color-ramps/lib/color-utils';
-import type { ThemeProviderProps } from './types';
+import type { ThemeProviderProps, ThemeProviderStyles } from './types';
 
 type Entry = [ string, string ];
 
@@ -168,7 +168,7 @@ export function useThemeProviderStyles( {
 	color?: ThemeProviderProps[ 'color' ];
 	cursor?: ThemeProviderProps[ 'cursor' ];
 	cornerRadius?: ThemeProviderProps[ 'cornerRadius' ];
-} = {} ) {
+} = {} ): ThemeProviderStyles {
 	const { resolvedSettings: inheritedSettings } = useContext( ThemeContext );
 
 	// Compute settings:

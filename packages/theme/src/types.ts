@@ -1,6 +1,15 @@
-import { type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 
 export type CornerRadiusPreset = 'none' | 'subtle' | 'moderate' | 'pronounced';
+
+export interface ThemeProviderStyles {
+	resolvedSettings: {
+		color: { primary: string; background: string };
+		cursor: { control: 'default' | 'pointer' } | undefined;
+		cornerRadius: CornerRadiusPreset;
+	};
+	themeProviderStyles: CSSProperties;
+}
 
 export interface ThemeProviderSettings {
 	/**
