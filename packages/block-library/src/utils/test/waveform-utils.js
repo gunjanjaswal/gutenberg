@@ -431,12 +431,11 @@ describe( 'Waveform utilities', () => {
 		} );
 
 		it( 'updates cached colors and redraws the player', () => {
-			const { element, player, playBtn } =
-				createPlayerForColorRefresh();
+			const { element, player, playBtn } = createPlayerForColorRefresh();
 
-			expect(
-				refreshWaveformPlayerColors( player, element )
-			).toBe( true );
+			expect( refreshWaveformPlayerColors( player, element ) ).toBe(
+				true
+			);
 
 			expect( player.colorState ).toMatchObject( {
 				textColor: 'rgb(10, 20, 30)',
@@ -462,9 +461,9 @@ describe( 'Waveform utilities', () => {
 			refreshWaveformPlayerColors( player, element );
 			player.instance.drawWaveform.mockClear();
 
-			expect(
-				refreshWaveformPlayerColors( player, element )
-			).toBe( false );
+			expect( refreshWaveformPlayerColors( player, element ) ).toBe(
+				false
+			);
 			expect( player.instance.drawWaveform ).not.toHaveBeenCalled();
 		} );
 	} );
