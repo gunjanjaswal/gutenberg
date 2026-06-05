@@ -12,10 +12,14 @@ import { act, render } from '@testing-library/react';
  * Internal dependencies
  */
 import { WaveformPlayer } from '../waveform-player';
-import { initWaveformPlayer } from '../waveform-utils';
+import {
+	initWaveformPlayer,
+	refreshWaveformPlayerColors,
+} from '../waveform-utils';
 
 jest.mock( '../waveform-utils', () => ( {
 	initWaveformPlayer: jest.fn(),
+	refreshWaveformPlayerColors: jest.fn(),
 } ) );
 
 /**
@@ -68,6 +72,7 @@ describe( 'WaveformPlayer', () => {
 		jest.runOnlyPendingTimers();
 		jest.useRealTimers();
 		initWaveformPlayer.mockReset();
+		refreshWaveformPlayerColors.mockReset();
 	} );
 
 	const baseProps = {
@@ -123,6 +128,25 @@ describe( 'WaveformPlayer', () => {
 		expect( player.instance.artworkEl ).toHaveAttribute(
 			'src',
 			'https://example.com/new.jpg'
+		);
+	} );
+
+	it( 'refreshes live player colors after an editor rerender without recreating it', () => {
+		const { rerender } = render( <WaveformPlayer { ...baseProps } /> );
+
+		act( () => {
+			jest.advanceTimersByTime( 100 );
+		} );
+
+		const player = initWaveformPlayer.mock.results[ 0 ].value;
+
+		rerender( <WaveformPlayer { ...baseProps } /> );
+
+		expect( initWaveformPlayer ).toHaveBeenCalledTimes( 1 );
+		expect( player.destroy ).not.toHaveBeenCalled();
+		expect( refreshWaveformPlayerColors ).toHaveBeenCalledWith(
+			player,
+			expect.any( HTMLElement )
 		);
 	} );
 
