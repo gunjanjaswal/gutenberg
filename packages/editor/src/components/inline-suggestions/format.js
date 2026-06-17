@@ -2,6 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { select } from '@wordpress/data';
+import {
+	registerFormatType,
+	store as richTextStore,
+} from '@wordpress/rich-text';
 
 /**
  * Internal dependencies
@@ -60,6 +65,28 @@ export const suggestionFormat = {
 	},
 	edit: () => null,
 };
+
+/**
+ * Idempotently register the `core/suggestion` marker format so rich-text can
+ * round-trip a suggestion `<mark>` in block content and the annotations API can
+ * decorate it. Guarded against duplicate registration (HMR, repeated editor
+ * bootstrap, tests) the same way `core/note` is registered.
+ *
+ * The format itself is generic (inert `edit`); a consumer that owns the
+ * suggesting UI — i.e. suggest mode — passes its own `edit` so the
+ * marker-creating toolbar control lives with the feature, not the primitive.
+ *
+ * @param {Function} [edit] Optional rich-text format `edit` component.
+ */
+export function registerSuggestionFormat( edit ) {
+	if ( select( richTextStore ).getFormatType( SUGGESTION_FORMAT_NAME ) ) {
+		return;
+	}
+	registerFormatType(
+		SUGGESTION_FORMAT_NAME,
+		edit ? { ...suggestionFormat, edit } : suggestionFormat
+	);
+}
 
 /**
  * Resolve a suggestion marker's live character range in a rich-text value by
