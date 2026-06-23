@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import type { SerializedStyles } from '@emotion/react';
-import { css } from '@emotion/react';
+import clsx from 'clsx';
+import type { CSSProperties } from 'react';
 
 /**
  * Internal dependencies
@@ -10,9 +10,12 @@ import { css } from '@emotion/react';
 import type { WordPressComponentProps } from '../../context';
 import { useContextSystem } from '../../context';
 import { useFlexContext } from '../context';
-import * as styles from '../styles';
-import { useCx } from '../../utils/hooks/use-cx';
 import type { FlexItemProps } from '../types';
+import styles from '../style.module.scss';
+
+type FlexItemStyle = CSSProperties & {
+	'--wp-components-flex-item-display'?: CSSProperties[ 'display' ];
+};
 
 export function useFlexItem(
 	props: WordPressComponentProps< FlexItemProps, 'div' >
@@ -21,30 +24,21 @@ export function useFlexItem(
 		className,
 		display: displayProp,
 		isBlock = false,
+		style,
 		...otherProps
 	} = useContextSystem( props, 'FlexItem' );
 
-	const sx: {
-		Base?: SerializedStyles;
-	} = {};
-
 	const contextDisplay = useFlexContext().flexItemDisplay;
+	const display = displayProp || contextDisplay;
 
-	sx.Base = css( {
-		display: displayProp || contextDisplay,
-	} );
-
-	const cx = useCx();
-
-	const classes = cx(
-		styles.Item,
-		sx.Base,
-		isBlock && styles.block,
-		className
-	);
+	const itemStyle: FlexItemStyle = {
+		...( display && { '--wp-components-flex-item-display': display } ),
+		...style,
+	};
 
 	return {
 		...otherProps,
-		className: classes,
+		className: clsx( styles.item, isBlock && styles.block, className ),
+		style: itemStyle,
 	};
 }
