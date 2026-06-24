@@ -2,10 +2,9 @@
 /**
  * Inline (partial-text) note support for block comments.
  *
- * Block comments (notes) shipped in WordPress 6.9; see
- * `lib/compat/wordpress-6.9/block-comments.php`. Inline notes - notes anchored
- * to a text selection within a block rather than the whole block - are a 7.1
- * addition and live here.
+ * Block comments (notes) shipped in WordPress 6.9 core. Inline notes - notes
+ * anchored to a text selection within a block rather than the whole block - are
+ * a 7.1 addition and live here.
  *
  * An inline note's anchor is the in-content `<mark class="wp-note" data-id="N">`
  * marker alone: the `data-id` identifies the note and the marker's position
