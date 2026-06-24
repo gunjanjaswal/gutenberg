@@ -95,16 +95,24 @@ test.describe( 'Suggestion mode', () => {
 		await expect( paragraph ).toContainText(
 			'Original content plus suggested'
 		);
+
+		// The addition's `data-suggestion-id` is minted by the note comment
+		// created during typing, and the marker is only written once that id
+		// resolves — so a populated id is race-free proof the suggestion
+		// auto-saved. (Unlike `waitForResponse`, which can't catch a POST that
+		// already landed while the text was being typed.) Typing routes
+		// through the inline-marker path, which bypasses the overlay, so the
+		// block doesn't take the overlay-only `is-suggestion-pending` bracket.
+		const marker = paragraph.locator(
+			'mark.wp-suggestion[data-suggestion-type="add"]'
+		);
+		await expect( marker ).toContainText( 'plus suggested' );
+		await expect( marker ).toHaveAttribute( 'data-suggestion-id', /\d/ );
+
 		const serialized = await editor.getEditedPostContent();
 		expect( serialized ).toContain( 'Original content' );
 		expect( serialized ).toContain( 'data-suggestion-type="add"' );
 		expect( serialized ).toContain( 'plus suggested' );
-
-		// Auto-save fires after the debounce window.
-		await waitForSuggestionSaved( page );
-
-		// Edited block picks up the pending-suggestion outline.
-		await expect( paragraph ).toHaveClass( /is-suggestion-pending/ );
 	} );
 
 	test( 'add — golden path: typed text becomes an in-content add marker', async ( {
