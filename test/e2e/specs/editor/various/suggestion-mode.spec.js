@@ -89,13 +89,16 @@ test.describe( 'Suggestion mode', () => {
 		await page.keyboard.press( 'End' );
 		await page.keyboard.type( ' plus suggested' );
 
-		// Overlay reflects the proposed content, block store does not.
+		// Option B: the typed addition lives in content wrapped in a
+		// `wp-suggestion` add marker (stripped only at the front end until
+		// accepted), so it round-trips through the serialized post.
 		await expect( paragraph ).toContainText(
 			'Original content plus suggested'
 		);
 		const serialized = await editor.getEditedPostContent();
 		expect( serialized ).toContain( 'Original content' );
-		expect( serialized ).not.toContain( 'plus suggested' );
+		expect( serialized ).toContain( 'data-suggestion-type="add"' );
+		expect( serialized ).toContain( 'plus suggested' );
 
 		// Auto-save fires after the debounce window.
 		await waitForSuggestionSaved( page );
