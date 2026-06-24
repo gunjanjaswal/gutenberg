@@ -1348,27 +1348,98 @@ class WP_Theme_JSON_Gutenberg {
 		}
 
 		$selectors         = array();
-		$current_selector  = '';
-		$parentheses_depth = 0;
 		$selector_length   = strlen( $selector );
+		$at                = 0;
+		$was_at            = 0;
 
-		for ( $i = 0; $i < $selector_length; $i++ ) {
-			$char = $selector[ $i ];
+		while ( $at < $selector_length ) {
+			$next_at = $at + strcspn( $selector, '/,\'"(<-', $at );
+			if ( $next_at >= $selector_length ) {
+				break;
+			}
 
-			if ( '(' === $char ) {
-				++$parentheses_depth;
-			} elseif ( ')' === $char && $parentheses_depth > 0 ) {
-				--$parentheses_depth;
-			} elseif ( ',' === $char && 0 === $parentheses_depth ) {
-				$selectors[]      = $current_selector;
-				$current_selector = '';
+			$next_cp = $selector[ $next_at ];
+
+			/*
+			 * Start of a parenthesized expression, which maintains a stack of parenthesis.
+			 * For the sake of this function, no selector list will be split inside parentheses.
+			 * Therefore it’s possible to jump ahead until this list completes.
+			 */
+			if ( '(' === $next_cp ) {
+				$parentheses_depth = 1;
+				$parenthesis_at    = $next_at + 1;
+
+				while ( $parentheses_depth > 0 ) {
+					$parenthesis_at += strcspn( $selector, '()', $parenthesis_at );
+					if ( $parenthesis_at >= $selector_length ) {
+						break;
+					}
+
+					$parentheses_depth += ( '(' === $selector[ $parenthesis_at ] ) ? 1 : -1;
+					++$parenthesis_at;
+				}
+
+				$at = false === $parenthesis_at ? $selector_length : $parenthesis_at;
 				continue;
 			}
 
-			$current_selector .= $char;
+			// Start of a string, which will be incorporated into the selector in which it’s found.
+			if ( "'" === $next_cp || '"' === $next_cp ) {
+				$end_of_string = $next_at + 1;
+				while ( $end_of_string < $selector_length ) {
+					$end_of_string = strpos( $selector, $next_cp, $end_of_string );
+					if ( false === $end_of_string ) {
+						break;
+					}
+
+					/*
+					 * Skip escaped quoting characters. The indexing is safe because the earliest
+					 * this could look is the starting quote, which is not a reverse solidus.
+					 */
+					if ( '\\' === $selector[ $end_of_string - 1 ] ) {
+						++$end_of_string;
+						continue;
+					}
+
+					break;
+				}
+
+				$at = false === $end_of_string ? $selector_length : ( $end_of_string + 1 );
+				continue;
+			}
+
+			// Start of a comment, which will be incorporated into the selector in which it’s found.
+			if ( '/' === $next_cp && ( $next_at + 1 ) < $selector_length && '*' === $selector[ $next_at + 1 ] ) {
+				$comment_end_at = strpos( $selector, '*/', $next_at + 1 );
+				$is_terminated  = false !== $comment_end_at;
+				$after_comment  = $is_terminated ? $comment_end_at + 2 : strlen( $selector );
+				$at             = $after_comment;
+				continue;
+			}
+
+			// Start of a CDO or CDC, which will be incorporated into the selector in which it’s found.
+			if (
+				( '<' === $next_cp && 0 === substr_compare( $selector, '<!--', $next_at, 4 ) ) ||
+				( '-' === $next_cp && 0 === substr_compare( $selector, '-->', $next_at, 3 ) )
+			) {
+				$at = $next_at + ( '<' === $next_cp ? 4 : 3 );
+				continue;
+			}
+
+			// Everything else is either a comma token or part of a selector.
+			if ( ',' === $next_cp ) {
+				$selectors[] = substr( $selector, $was_at, $next_cp - $was_at );
+				$at          = $next_at + 1;
+				$was_at      = $at;
+				continue;
+			}
+
+			$at = $next_at + 1;
 		}
 
-		$selectors[] = $current_selector;
+		if ( $at < $selector_length ) {
+			$selectors[] = substr( $selector, $was_at );
+		}
 
 		return $selectors;
 	}
