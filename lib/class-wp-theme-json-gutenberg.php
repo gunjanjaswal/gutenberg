@@ -1323,7 +1323,7 @@ class WP_Theme_JSON_Gutenberg {
 		 *
 		 * @see https://www.w3.org/TR/css-syntax-3/#parse-comma-separated-list-of-component-values
 		 */
-		if ( strlen( $selector ) !== strcspn( $selector, '/\'"(<' ) ) {
+		if ( strlen( $selector ) === strcspn( $selector, '/\'"(<' ) ) {
 			return $to_prepend . str_replace( ',', ',' . $to_prepend, $selector );
 		}
 
@@ -1347,10 +1347,11 @@ class WP_Theme_JSON_Gutenberg {
 			return array( $selector );
 		}
 
-		$selectors       = array();
-		$selector_length = strlen( $selector );
-		$at              = 0;
-		$was_at          = 0;
+		$selectors         = array();
+		$selector_length   = strlen( $selector );
+		$parentheses_depth = 0;
+		$at                = 0;
+		$was_at            = 0;
 
 		while ( $at < $selector_length ) {
 			$next_at = $at + strcspn( $selector, '/,\'"(<-', $at );
@@ -1365,21 +1366,9 @@ class WP_Theme_JSON_Gutenberg {
 			 * For the sake of this function, no selector list will be split inside parentheses.
 			 * Therefore it’s possible to jump ahead until this list completes.
 			 */
-			if ( '(' === $next_cp ) {
-				$parentheses_depth = 1;
-				$parenthesis_at    = $next_at + 1;
-
-				while ( $parentheses_depth > 0 ) {
-					$parenthesis_at += strcspn( $selector, '()', $parenthesis_at );
-					if ( $parenthesis_at >= $selector_length ) {
-						break;
-					}
-
-					$parentheses_depth += ( '(' === $selector[ $parenthesis_at ] ) ? 1 : -1;
-					++$parenthesis_at;
-				}
-
-				$at = false === $parenthesis_at ? $selector_length : $parenthesis_at;
+			if ( '(' === $next_cp || ')' === $next_cp ) {
+				$parentheses_depth += '(' === $next_cp ? 1 : -1;
+				$at = $next_at + 1;
 				continue;
 			}
 
@@ -1427,7 +1416,7 @@ class WP_Theme_JSON_Gutenberg {
 			}
 
 			// Everything else is either a comma token or part of a selector.
-			if ( ',' === $next_cp ) {
+			if ( ',' === $next_cp && 0 === $parentheses_depth ) {
 				$selectors[] = substr( $selector, $was_at, $next_cp - $was_at );
 				$at          = $next_at + 1;
 				$was_at      = $at;
@@ -1437,7 +1426,7 @@ class WP_Theme_JSON_Gutenberg {
 			$at = $next_at + 1;
 		}
 
-		if ( $at < $selector_length ) {
+		if ( $was_at < $selector_length ) {
 			$selectors[] = substr( $selector, $was_at );
 		}
 
