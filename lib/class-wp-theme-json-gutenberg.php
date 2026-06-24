@@ -1347,10 +1347,10 @@ class WP_Theme_JSON_Gutenberg {
 			return array( $selector );
 		}
 
-		$selectors         = array();
-		$selector_length   = strlen( $selector );
-		$at                = 0;
-		$was_at            = 0;
+		$selectors       = array();
+		$selector_length = strlen( $selector );
+		$at              = 0;
+		$was_at          = 0;
 
 		while ( $at < $selector_length ) {
 			$next_at = $at + strcspn( $selector, '/,\'"(<-', $at );
