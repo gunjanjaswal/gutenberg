@@ -1354,7 +1354,7 @@ class WP_Theme_JSON_Gutenberg {
 		$was_at            = 0;
 
 		while ( $at < $selector_length ) {
-			$next_at = $at + strcspn( $selector, '/,\'"(<-', $at );
+			$next_at = $at + strcspn( $selector, '/,\'"()<-', $at );
 			if ( $next_at >= $selector_length ) {
 				break;
 			}
@@ -1385,7 +1385,10 @@ class WP_Theme_JSON_Gutenberg {
 					 * Skip escaped quoting characters. The indexing is safe because the earliest
 					 * this could look is the starting quote, which is not a reverse solidus.
 					 */
-					if ( '\\' === $selector[ $end_of_string - 1 ] ) {
+					if (
+						'\\' === $selector[ $end_of_string - 1 ] &&
+						( $end_of_string - 2 > $next_at && '\\' !== $selector[ $end_of_string - 2 ] )
+					) {
 						++$end_of_string;
 						continue;
 					}
