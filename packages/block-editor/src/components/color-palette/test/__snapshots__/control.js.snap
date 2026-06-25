@@ -98,13 +98,6 @@ exports[`ColorPaletteControl matches the snapshot 1`] = `
   justify-content: center;
 }
 
-.emotion-18 {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 <div>
   <div
     class="components-base-control block-editor-color-gradient-control emotion-0 emotion-1"
@@ -162,14 +155,14 @@ exports[`ColorPaletteControl matches the snapshot 1`] = `
                     data-wp-component="VStack"
                   >
                     <span
-                      class="emotion-18 components-truncate components-color-palette__custom-color-name"
+                      class="components-truncate components-color-palette__custom-color-name"
                       data-wp-c16t="true"
                       data-wp-component="Truncate"
                     >
                       red
                     </span>
                     <span
-                      class="emotion-18 components-truncate components-color-palette__custom-color-value components-color-palette__custom-color-value--is-hex"
+                      class="components-truncate components-color-palette__custom-color-value components-color-palette__custom-color-value--is-hex"
                       data-wp-c16t="true"
                       data-wp-component="Truncate"
                     >
