@@ -1307,7 +1307,7 @@ class WP_Theme_JSON_Gutenberg {
 		/**
 		 * Check for an opportunity to skip the more-costly selector splitting.
 		 * This should be possible if there are no comments, strings, functions,
-		 * URLs, or comment declaration openers (CDOs).
+		 * URLs, escapes, or comment declaration openers (CDOs).
 		 *
 		 * Note that this means the fast-path will not apply for selectors like
 		 * the following incomplete list:
@@ -1323,7 +1323,7 @@ class WP_Theme_JSON_Gutenberg {
 		 *
 		 * @see https://www.w3.org/TR/css-syntax-3/#parse-comma-separated-list-of-component-values
 		 */
-		if ( strlen( $selector ) === strcspn( $selector, '/\'"(<' ) ) {
+		if ( strlen( $selector ) === strcspn( $selector, '/\'"(<\\' ) ) {
 			return $to_prepend . str_replace( ',', ',' . $to_prepend, $selector );
 		}
 
@@ -1337,7 +1337,10 @@ class WP_Theme_JSON_Gutenberg {
 	}
 
 	/**
-	 * Splits a selector list by top-level commas.
+	 * Splits a selector list into separate selectors.
+	 *
+	 * @see https://www.w3.org/TR/selectors/#parse-selector
+	 * @see https://www.w3.org/TR/css-syntax-3/
 	 *
 	 * @param string $selector CSS selector list.
 	 * @return string[] Selectors.
@@ -1354,12 +1357,18 @@ class WP_Theme_JSON_Gutenberg {
 		$was_at            = 0;
 
 		while ( $at < $selector_length ) {
-			$next_at = $at + strcspn( $selector, '/,\'"()<-', $at );
+			$next_at = $at + strcspn( $selector, '/,\'"()<-\\', $at );
 			if ( $next_at >= $selector_length ) {
 				break;
 			}
 
 			$next_cp = $selector[ $next_at ];
+
+			// Escaped syntax characters do not act as delimiters.
+			if ( '\\' === $next_cp ) {
+				$at = min( $next_at + 2, $selector_length );
+				continue;
+			}
 
 			/*
 			 * Start of a parenthesized expression, which maintains a stack of parenthesis.
@@ -1376,24 +1385,25 @@ class WP_Theme_JSON_Gutenberg {
 			if ( "'" === $next_cp || '"' === $next_cp ) {
 				$end_of_string = $next_at + 1;
 				while ( $end_of_string < $selector_length ) {
-					$end_of_string = strpos( $selector, $next_cp, $end_of_string );
-					if ( false === $end_of_string ) {
+					$end_of_string += strcspn( $selector, "{$next_cp}\\", $end_of_string );
+					if ( $end_of_string >= $selector_length ) {
 						break;
 					}
 
-					/*
-					 * Skip escaped quoting characters. The indexing is safe because the earliest
-					 * this could look is the starting quote, which is not a reverse solidus.
-					 */
-					if (
-						'\\' === $selector[ $end_of_string - 1 ] &&
-						( $end_of_string - 2 > $next_at && '\\' !== $selector[ $end_of_string - 2 ] )
-					) {
-						++$end_of_string;
+					$end_cp = $selector[ $end_of_string ];
+
+					// Skip escaped characters.
+					if ( '\\' === $end_cp ) {
+						$end_of_string = $end_of_string + 2;
 						continue;
 					}
 
-					break;
+					if ( $next_cp === $end_cp ) {
+						++$end_of_string;
+						break;
+					}
+
+					++$end_of_string;
 				}
 
 				$at = false === $end_of_string ? $selector_length : ( $end_of_string + 1 );
