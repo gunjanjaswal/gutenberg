@@ -80,7 +80,6 @@ function UnconnectedToggleGroupControl(
 					isDeselectable,
 					size: normalizedSize,
 				} ),
-				isBlock && styles.block,
 				className
 			),
 		[ className, cx, isBlock, isDeselectable, normalizedSize ]
