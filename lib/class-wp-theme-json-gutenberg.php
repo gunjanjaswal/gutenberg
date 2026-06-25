@@ -1406,7 +1406,7 @@ class WP_Theme_JSON_Gutenberg {
 					++$end_of_string;
 				}
 
-				$at = false === $end_of_string ? $selector_length : ( $end_of_string + 1 );
+				$at = $end_of_string;
 				continue;
 			}
 
