@@ -5,7 +5,11 @@
 		"moduleResolution": "bundler",
 		"types": [ "jest", "style-imports", "react-css-custom-properties" ]
 	},
-	"exclude": [],
+	"exclude": [
+		"src/**/stories/**",
+		"src/**/test/**",
+		"src/**/__snapshots__/**"
+	],
 	"files": [ "global.d.ts" ],
 	"references": [
 		{ "path": "../compose" },
