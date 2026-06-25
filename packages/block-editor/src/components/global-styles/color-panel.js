@@ -4,6 +4,7 @@
 import { __experimentalToolsPanel as ToolsPanel } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getCSSValueFromRawStyle } from '@wordpress/style-engine';
 
 /**
  * Internal dependencies
@@ -164,9 +165,15 @@ export default function ColorPanel( {
 	} = useColorGradientSettings( settings );
 	const getPushHandler = useStylePushHandlers( value );
 
+	// When an inherited preset isn't in the panel's palette, `decodeValue`
+	// returns the raw `var:preset|…` token rather than a paintable colour.
+	// Fall back to its CSS custom property so the swatch still renders.
+	const decodeInheritedColor = ( rawValue ) =>
+		getCSSValueFromRawStyle( decodeValue( rawValue ) );
+
 	// Links
 	const showLinkPanel = useHasLinkPanel( settings );
-	const linkColor = decodeValue(
+	const linkColor = decodeInheritedColor(
 		inheritedValue?.elements?.link?.color?.text
 	);
 	const userLinkColor = decodeValue( value?.elements?.link?.color?.text );
@@ -179,7 +186,7 @@ export default function ColorPanel( {
 			)
 		);
 	};
-	const hoverLinkColor = decodeValue(
+	const hoverLinkColor = decodeInheritedColor(
 		inheritedValue?.elements?.link?.[ ':hover' ]?.color?.text
 	);
 	const userHoverLinkColor = decodeValue(
@@ -355,13 +362,13 @@ export default function ColorPanel( {
 			return;
 		}
 
-		const elementBackgroundColor = decodeValue(
+		const elementBackgroundColor = decodeInheritedColor(
 			inheritedValue?.elements?.[ name ]?.color?.background
 		);
-		const elementGradient = decodeValue(
+		const elementGradient = decodeInheritedColor(
 			inheritedValue?.elements?.[ name ]?.color?.gradient
 		);
-		const elementTextColor = decodeValue(
+		const elementTextColor = decodeInheritedColor(
 			inheritedValue?.elements?.[ name ]?.color?.text
 		);
 		const elementBackgroundUserColor = decodeValue(

@@ -266,4 +266,78 @@ describe( 'ColorPanel — inherited Global Styles label treatment', () => {
 			expect( overrideItems.length ).toBeGreaterThanOrEqual( 1 );
 		} );
 	} );
+
+	// An inherited element colour can be a preset slug that isn't in the
+	// block panel's palette. It must fall back to the preset's CSS custom
+	// property so the swatch paints instead of rendering black.
+	describe( 'inherited preset missing from the palette', () => {
+		function getSwatchStyles( container ) {
+			return Array.from(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelectorAll( '.component-color-indicator' )
+			).map( ( node ) => node.getAttribute( 'style' ) ?? '' );
+		}
+
+		// Palette intentionally lacks `vivid-purple`.
+		const settings = {
+			color: {
+				link: true,
+				heading: true,
+				defaultPalette: true,
+				palette: {
+					default: [ { name: 'Red', slug: 'red', color: '#ff0000' } ],
+				},
+			},
+		};
+
+		it( 'paints an inherited link preset via its CSS custom property', () => {
+			const { container } = render(
+				<ColorPanel
+					value={ {} }
+					inheritedValue={ {
+						elements: {
+							link: {
+								color: {
+									text: 'var:preset|color|vivid-purple',
+								},
+							},
+						},
+					} }
+					settings={ settings }
+					onChange={ () => {} }
+					panelId="test-panel"
+				/>
+			);
+			expect(
+				getSwatchStyles( container ).some( ( s ) =>
+					s.includes( 'var(--wp--preset--color--vivid-purple)' )
+				)
+			).toBe( true );
+		} );
+
+		it( 'paints an inherited element (heading) preset via its CSS custom property', () => {
+			const { container } = render(
+				<ColorPanel
+					value={ {} }
+					inheritedValue={ {
+						elements: {
+							heading: {
+								color: {
+									text: 'var:preset|color|vivid-purple',
+								},
+							},
+						},
+					} }
+					settings={ settings }
+					onChange={ () => {} }
+					panelId="test-panel"
+				/>
+			);
+			expect(
+				getSwatchStyles( container ).some( ( s ) =>
+					s.includes( 'var(--wp--preset--color--vivid-purple)' )
+				)
+			).toBe( true );
+		} );
+	} );
 } );
