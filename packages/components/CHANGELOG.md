@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+-   `View`: The legacy Emotion `css` prop no longer has any effect. Use `style` for inline styles or `className` for CSS-based styling instead ([#79443](https://github.com/WordPress/gutenberg/pull/79443)).
 -   The `__next40pxDefaultSize` prop is now true by default. The prop can be safely removed from the following:
     -   `BorderBoxControl` ([#79420](https://github.com/WordPress/gutenberg/pull/79420))
     -   `BorderControl` ([#79418](https://github.com/WordPress/gutenberg/pull/79418))
