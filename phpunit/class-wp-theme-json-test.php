@@ -8153,7 +8153,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.prefix ',
 				'expected'   => '.prefix .foo,.prefix .bar',
 			),
-			'prepend without trailing space'              => array(
+			'prepend without trailing space'             => array(
 				'selector'   => '.child',
 				'to_prepend' => '.parent',
 				'expected'   => '.parent.child',
@@ -8163,7 +8163,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.parent',
 				'expected'   => '.parent.a,.parent.b',
 			),
-			'descendant selector prepended'               => array(
+			'descendant selector prepended'                => array(
 				'selector'   => '.block .inner',
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope .block .inner',
@@ -8173,27 +8173,27 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope .block .inner,.scope .block .alt',
 			),
-			'empty selector'                              => array(
+			'empty selector'                               => array(
 				'selector'   => '',
 				'to_prepend' => '.prefix ',
 				'expected'   => '.prefix ',
 			),
-			'empty prepend'                               => array(
+			'empty prepend'                                => array(
 				'selector'   => '.child',
 				'to_prepend' => '',
 				'expected'   => '.child',
 			),
-			'both empty'                                  => array(
+			'both empty'                                   => array(
 				'selector'   => '',
 				'to_prepend' => '',
 				'expected'   => '',
 			),
-			'attribute selector'                          => array(
+			'attribute selector'                           => array(
 				'selector'   => '[data-type="example"]',
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope [data-type="example"]',
 			),
-			'pseudo-class selector'                       => array(
+			'pseudo-class selector'                        => array(
 				'selector'   => ':where(.is-layout-flex)',
 				'to_prepend' => '.editor ',
 				'expected'   => '.editor :where(.is-layout-flex)',
@@ -8203,17 +8203,17 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.content ',
 				'expected'   => '.content h1,.content h2,.content h3,.content h4,.content h5,.content h6',
 			),
-			'real world block element selector'           => array(
+			'real world block element selector'            => array(
 				'selector'   => 'p',
 				'to_prepend' => '.wp-block-group ',
 				'expected'   => '.wp-block-group p',
 			),
-			'real world compound block element selectors' => array(
+			'real world compound block element selectors'  => array(
 				'selector'   => 'a,.wp-element-button',
 				'to_prepend' => '.wp-block-group ',
 				'expected'   => '.wp-block-group a,.wp-block-group .wp-element-button',
 			),
-			'spaces after commas are preserved'           => array(
+			'spaces after commas are preserved'            => array(
 				'selector'   => 'h1, h2, h3',
 				'to_prepend' => '.some-class ',
 				'expected'   => '.some-class h1,.some-class  h2,.some-class  h3',
@@ -8223,7 +8223,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.prefix ',
 				'expected'   => '.prefix .foo,.prefix  .bar',
 			),
-			'mixed whitespace around commas preserved'    => array(
+			'mixed whitespace around commas preserved'     => array(
 				'selector'   => '.a ,  .b , .c',
 				'to_prepend' => '.pre ',
 				'expected'   => '.pre .a ,.pre   .b ,.pre  .c',
@@ -8248,7 +8248,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope :where(.a, .b),.scope :is(.c, .d)',
 			),
-			'nested parentheses with commas'              => array(
+			'nested parentheses with commas'               => array(
 				'selector'   => ':where(:not(.a, .b), .c),.d',
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope :where(:not(.a, .b), .c),.scope .d',
