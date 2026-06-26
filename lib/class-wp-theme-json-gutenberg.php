@@ -1447,7 +1447,7 @@ class WP_Theme_JSON_Gutenberg {
 				 * @see https://www.w3.org/TR/css-syntax/#whitespace
 				 * @see https://www.w3.org/TR/css-syntax/#newline
 				 */
-				$selectors[] = trim( substr( $selector, $was_at, $next_cp - $was_at ), " \t\n" );
+				$selectors[] = trim( substr( $selector, $was_at, $next_at - $was_at ), " \t\n" );
 				$at          = $next_at + 1;
 				$was_at      = $at;
 				continue;
