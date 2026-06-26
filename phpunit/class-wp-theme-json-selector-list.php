@@ -44,27 +44,27 @@ class WP_Theme_JSON_Gutenberg_Selector_List_Test extends WP_UnitTestCase {
 	 */
 	public function data_split_selector_list() {
 		return array(
-			'simple selector list'                             => array(
+			'simple selector list'                  => array(
 				'selector' => 'h1,h2',
 				'expected' => array( 'h1', 'h2' ),
 			),
-			'preserves whitespace around selectors'            => array(
+			'preserves whitespace around selectors' => array(
 				'selector' => '.a ,  .b , .c',
 				'expected' => array( '.a ', '  .b ', ' .c' ),
 			),
-			'selector function list argument'                  => array(
+			'selector function list argument'       => array(
 				'selector' => ':where(.a, .b),.c',
 				'expected' => array( ':where(.a, .b)', '.c' ),
 			),
-			'nested selector functions'                        => array(
+			'nested selector functions'             => array(
 				'selector' => ':where(:not(.a, .b), .c),.d',
 				'expected' => array( ':where(:not(.a, .b), .c)', '.d' ),
 			),
-			'attribute string containing comma'                => array(
+			'attribute string containing comma'     => array(
 				'selector' => '[data-label="Save, continue"],.fallback',
 				'expected' => array( '[data-label="Save, continue"]', '.fallback' ),
 			),
-			'escaped comma in identifier'                      => array(
+			'escaped comma in identifier'           => array(
 				'selector' => '.foo\,bar,.baz',
 				'expected' => array( '.foo\,bar', '.baz' ),
 			),
@@ -72,15 +72,15 @@ class WP_Theme_JSON_Gutenberg_Selector_List_Test extends WP_UnitTestCase {
 				'selector' => ':is(.a\), .b), .c',
 				'expected' => array( ':is(.a\), .b)', ' .c' ),
 			),
-			'quoted function argument before top-level comma'  => array(
+			'quoted function argument before top-level comma' => array(
 				'selector' => ':lang(zh, "*-hant"),.foo',
 				'expected' => array( ':lang(zh, "*-hant")', '.foo' ),
 			),
-			'escaped quote and comma inside string'            => array(
+			'escaped quote and comma inside string' => array(
 				'selector' => '[data-x="\",inside"],.b',
 				'expected' => array( '[data-x="\",inside"]', '.b' ),
 			),
-			'comment containing comma'                         => array(
+			'comment containing comma'              => array(
 				'selector' => '.a/*,*/,.b',
 				'expected' => array( '.a/*,*/', '.b' ),
 			),
@@ -105,7 +105,7 @@ class WP_Theme_JSON_Gutenberg_Selector_List_Test extends WP_UnitTestCase {
 	 */
 	public function data_prepend_to_selector_uses_safe_splitting() {
 		return array(
-			'fast path for simple selector list'                => array(
+			'fast path for simple selector list' => array(
 				'selector' => 'h1,h2',
 				'expected' => '.scope h1,.scope h2',
 			),
@@ -113,7 +113,7 @@ class WP_Theme_JSON_Gutenberg_Selector_List_Test extends WP_UnitTestCase {
 				'selector' => '.foo\,bar,.baz',
 				'expected' => '.scope .foo\,bar,.scope .baz',
 			),
-			'quoted selector function argument is preserved'    => array(
+			'quoted selector function argument is preserved' => array(
 				'selector' => ':lang(zh, "*-hant"),.foo',
 				'expected' => '.scope :lang(zh, "*-hant"),.scope .foo',
 			),

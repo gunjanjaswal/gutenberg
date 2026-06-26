@@ -1377,7 +1377,7 @@ class WP_Theme_JSON_Gutenberg {
 			 */
 			if ( '(' === $next_cp || ')' === $next_cp ) {
 				$parentheses_depth += '(' === $next_cp ? 1 : -1;
-				$at = $next_at + 1;
+				$at                 = $next_at + 1;
 				continue;
 			}
 
@@ -1430,7 +1430,24 @@ class WP_Theme_JSON_Gutenberg {
 
 			// Everything else is either a comma token or part of a selector.
 			if ( ',' === $next_cp && 0 === $parentheses_depth ) {
-				$selectors[] = substr( $selector, $was_at, $next_cp - $was_at );
+				/**
+				 * Trim each selector so that downstream code doesn’t see whitespace
+				 * as the first character in a selector and get confused.
+				 *
+				 * There is inconsistency in this because comments and other syntax
+				 * are included which are also not part of the selector itself, but
+				 * a tradeoff is made between removing common syntax which carries
+				 * no meaning and rarer syntax which leaves auxillary information.
+				 *
+				 * > A newline, U+0009 CHARACTER TABULATION, or U+0020 SPACE.
+				 * > Note that U+000D CARRIAGE RETURN and U+000C FORM FEED are
+				 * > not included in this definition, as they are converted
+				 * > to U+000A LINE FEED during preprocessing.
+				 *
+				 * @see https://www.w3.org/TR/css-syntax/#whitespace
+				 * @see https://www.w3.org/TR/css-syntax/#newline
+				 */
+				$selectors[] = trim( substr( $selector, $was_at, $next_cp - $was_at ), " \t\n" );
 				$at          = $next_at + 1;
 				$was_at      = $at;
 				continue;
