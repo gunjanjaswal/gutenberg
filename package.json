@@ -222,5 +222,16 @@
 		"test/unit",
 		"tools/*",
 		"widgets/*"
-	]
+	],
+	"allowScripts": {
+		"@parcel/watcher": false,
+		"core-js": false,
+		"core-js-pure": false,
+		"esbuild": true,
+		"fs-ext": false,
+		"fsevents": false,
+		"leveldown": false,
+		"nx": false,
+		"unrs-resolver": false
+	}
 }
