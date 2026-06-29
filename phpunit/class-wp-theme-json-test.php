@@ -8153,7 +8153,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.prefix ',
 				'expected'   => '.prefix .foo,.prefix .bar',
 			),
-			'prepend without trailing space'             => array(
+			'prepend without trailing space'               => array(
 				'selector'   => '.child',
 				'to_prepend' => '.parent',
 				'expected'   => '.parent.child',
@@ -8238,7 +8238,7 @@ class WP_Theme_JSON_Gutenberg_Test extends WP_UnitTestCase {
 				'to_prepend' => '.scope ',
 				'expected'   => '.scope :where(.a, .b),.scope .c',
 			),
-			'is with internal commas and top-level comma' => array(
+			'is with internal commas and top-level comma'  => array(
 				'selector'   => ':is(.x, .y),.z',
 				'to_prepend' => '.wrapper ',
 				'expected'   => '.wrapper :is(.x, .y),.wrapper .z',
