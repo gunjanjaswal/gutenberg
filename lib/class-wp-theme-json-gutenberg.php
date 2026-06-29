@@ -1437,7 +1437,7 @@ class WP_Theme_JSON_Gutenberg {
 				 * There is inconsistency in this because comments and other syntax
 				 * are included which are also not part of the selector itself, but
 				 * a tradeoff is made between removing common syntax which carries
-				 * no meaning and rarer syntax which leaves auxillary information.
+				 * no meaning and rarer syntax which leaves auxiliary information.
 				 *
 				 * > A newline, U+0009 CHARACTER TABULATION, or U+0020 SPACE.
 				 * > Note that U+000D CARRIAGE RETURN and U+000C FORM FEED are
