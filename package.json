@@ -230,7 +230,7 @@
 		"esbuild": true,
 		"fs-ext": false,
 		"fsevents": false,
-		"leveldown": false,
+		"leveldown": true,
 		"nx": false,
 		"unrs-resolver": false
 	}
