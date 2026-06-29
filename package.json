@@ -227,7 +227,7 @@
 		"@parcel/watcher": false,
 		"core-js": false,
 		"core-js-pure": false,
-		"esbuild": false,
+		"esbuild": true,
 		"fs-ext": false,
 		"fsevents": false,
 		"leveldown": true,
