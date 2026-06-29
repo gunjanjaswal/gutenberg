@@ -125,21 +125,23 @@ function ListViewBlock( {
 
 	const pasteStyles = usePasteStyles();
 
-	const { block, blockName, allowRightClickOverrides } = useSelect(
-		( select ) => {
-			const { getBlock, getBlockName, getSettings } = unlock(
-				select( blockEditorStore )
-			);
+	const { block, blockName, allowRightClickOverrides, viewportSettings } =
+		useSelect(
+			( select ) => {
+				const { getBlock, getBlockName, getSettings } = unlock(
+					select( blockEditorStore )
+				);
+				const settings = getSettings();
 
-			return {
-				block: getBlock( clientId ),
-				blockName: getBlockName( clientId ),
-				allowRightClickOverrides:
-					getSettings().allowRightClickOverrides,
-			};
-		},
-		[ clientId ]
-	);
+				return {
+					block: getBlock( clientId ),
+					blockName: getBlockName( clientId ),
+					allowRightClickOverrides: settings.allowRightClickOverrides,
+					viewportSettings: settings.__experimentalFeatures?.viewport,
+				};
+			},
+			[ clientId ]
+		);
 	const { canRename } = useBlockRename( blockName );
 
 	const showBlockActions =
@@ -535,7 +537,8 @@ function ListViewBlock( {
 
 	// Determine label based on where block is hidden (not when/current viewport)
 	const blockVisibilityDescription = getBlockVisibilityLabel(
-		block?.attributes?.metadata?.blockVisibility
+		block?.attributes?.metadata?.blockVisibility,
+		viewportSettings
 	);
 
 	const hasSiblings = siblingBlockCount > 0;
